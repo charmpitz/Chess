@@ -1,15 +1,27 @@
-// Board
 var ChessBoard = function(query) {
 	this.container = document.querySelector(query);
 	this.chessBoard = null;
 	this.topMarkersContainer = null;
 	this.leftMarkersContainer = null;
+
 	this.squares = [];
+	this.pieces = [];
+
+	this.currentSelection = null;
 
 	this.init = function() {
 		this.drawLeftMarkers();
 		this.drawTopMarkers();
 		this.drawBoard();
+		this.drawDefaultPieces();
+		this.addEvents();
+	}
+
+	this.Square = function(line, column) {
+		this.node = document.createElement('div');
+		this.node.classList.add('square');
+		this.node.classList.add('line-' + line);
+		this.node.classList.add('col-' + column);
 	}
 
 	this.drawTopMarkers = function() {
@@ -44,30 +56,34 @@ var ChessBoard = function(query) {
 		this.container.appendChild(this.leftMarkersContainer);
 	};
 
+
 	this.drawBoard = function() {
 		var square, i, j;
 
 		this.chessBoard = document.createElement('div');
-		this.chessBoard.className = 'chess-board';
+		this.chessBoard.classList.add('chess-board');
 
-		for (i=8; i>=1; i--) 
+		for (i=8; i>=1; i--)
 		{
+			this.squares[i] = [];
+
 			for (j=1; j<=8; j++) 
 			{
-				square = document.createElement('div');
-				square.className = 'line-' + i + ' ' + 'col-' + j;
-				this.chessBoard.appendChild(square);
-				this.squares.push(square);
+				this.squares[i][j] = new this.Square(i, j);
+				this.chessBoard.appendChild(this.squares[i][j].node);
 			}
 		}
 
 		this.container.appendChild(this.chessBoard);
 	};
+
 	this.newPiece = function (type, color) {
 		var element;
 
 		element = document.createElement('div');
-		element.className = type + ' ' + color;
+		element.classList.add('piece');
+		element.classList.add(type);
+		element.classList.add(color);
 
 		return element;
 	}
@@ -110,42 +126,128 @@ var ChessBoard = function(query) {
 
 	};
 
-	this.drawPiece = function(line, column, element) {
-		boardSquare = this.getSquare(line, column);
-		boardSquare.appendChild(element);
+	this.drawPiece = function(line, column, pieceNode) {
+		var squareNode;
+
+		squareNode = this.getSquareNode(line, column);
+		squareNode.appendChild(pieceNode);
+		
+		this.pieces.push(pieceNode);
 	}
 
-	this.getSquare = function(line, column) {
-		return this.container.querySelector('div.line-' + line + '.col-' + column);
+	this.removePiece = function(line, column, pieceNode) {
+		squareNode = this.getSquareNode(line, column);
+		squareNode.removeChild(pieceNode);
+	}
+
+	this.moveSelectedPiece = function(square) {
+		this.currentSelection.parentElement.removeChild(this.currentSelection);
+		square.appendChild(this.currentSelection);
+		this.currentSelection.classList.toggle('selected');
+		this.currentSelection = null;
+	}
+
+	this.getSquareNode = function(line, column) {
+		return this.squares[line][column].node;
+	}
+
+	this.getAvailableMoves = function(type, color, line, column) {
+		var moves = [];
+
+		switch(type) {
+			case 'pawn':
+				if (color == 'white')
+				{
+					if ((line+1 < 8) && (!this.squares[line+1][column].node.hasChildNodes()))
+					{
+						moves.push([line+1, column]);
+						if (line+1 == 8)
+						{
+							// 
+							// CHANGE PIECE HERE
+							// 
+						}
+					}
+
+					if ((line == 2) && (!this.squares[line+2][column].node.hasChildNodes()))
+					{
+						moves.push([line+2, column]);
+					}
+				}
+				break;
+
+			default:
+
+		}
+
+		return moves; 
 	}
 
 	this.addEvents = function() {
-		context = this.chessBoard;
+		context = this;
 
-		for (i=0; i<this.squares.length; i++) 
+		// Select Pieces
+		for (i=0; i<this.pieces.length; i++) 
 		{
-			this.squares[i].onclick = function () {
-				var aux = context.querySelector('.selected');
+			this.pieces[i].addEventListener('click', function(event) {
+				event.preventDefault();
+				event.stopPropagation();
 
-				if (aux != null)
+				var line, column;
+
+				// Highlight Selected Piece
+				if (this != context.currentSelection)
 				{
-					aux.classList.remove('selected');
+					if (context.currentSelection != null)
+						context.currentSelection.classList.toggle('selected');
+
+					context.currentSelection = this;
+					context.currentSelection.classList.toggle('selected');
 				}
-				
-				this.classList.toggle('selected');
-			}
+				else
+				{
+					context.currentSelection.classList.toggle('selected');
+					context.currentSelection = null;
+				}
+
+				// Highlight Available moves
+				var availableMoves = context.getAvailableMoves('pawn', 'white', 2, 2);
+				console.log(availableMoves);
+				// Show all Available moves
+				for (i=0; i<availableMoves.length; i++)
+				{
+					line = availableMoves[i][0];
+					column = availableMoves[i][1];
+					context.squares[line][column].node.classList.toggle('available');
+				}
+
+			});
 		}
 
+		// Move pieces
+		for (i=1; i<this.squares.length; i++) 
+		{
+			for (j=1; j<this.squares[i].length; j++)
+			{
+				this.squares[i][j].node.addEventListener('click', function(event) {
+					event.preventDefault();
+					event.stopPropagation();
+
+					if (context.currentSelection != null)
+					{
+						context.moveSelectedPiece(this);
+					}
+				});	
+			} 
+		}
 	}
+
+	// Initialize board
+	this.init();
 }
 
 window.onload = function(){
 
 	var board = new ChessBoard('.chess-container');
-
-	board.init();
-	board.drawDefaultPieces();
-	board.addEvents();
-
 
 };
