@@ -1,0 +1,88 @@
+.chess-container {
+	position: relative;
+	width: 364px;
+	height: 364px;
+}
+
+.top-markers {
+	position: absolute;
+	right:0;
+	top:0;
+}
+.left-markers {
+	position: absolute;
+	left:0;
+	bottom:0;
+}
+.top-markers > div,
+.left-markers > div {
+	width: 40px;
+	height: 40px;
+	text-align: center;
+	line-height: 40px;
+}
+.top-markers > div {
+	float:left;
+}
+
+
+.chess-board {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 320px;
+	height: 320px;
+	border:1px solid brown;
+}
+
+.chess-board > .square {
+	float: left;
+	width: 40px;
+	height: 40px;
+}
+.chess-board > .square.available {
+	background-color:green!important;
+}
+.chess-board > .square > .piece.selected {
+	background-color:blue!important;
+}
+
+.chess-board > .square > .piece {
+	width: 40px;
+	height: 40px;
+}
+
+.chess-board > div.line-1:nth-child(2n+1),
+.chess-board > div.line-3:nth-child(2n+1),
+.chess-board > div.line-5:nth-child(2n+1),
+.chess-board > div.line-7:nth-child(2n+1) {
+	background-color: brown;
+}
+
+.chess-board > div.line-2:nth-child(2n),
+.chess-board > div.line-4:nth-child(2n),
+.chess-board > div.line-6:nth-child(2n),
+.chess-board > div.line-8:nth-child(2n) {
+	background-color: brown;
+}
+
+
+
+.pawn, .rook, .knight, .bishop, .king, .queen {
+	background-image: url(../images/pieces.svg);
+	background-size: 240px;
+}
+
+.pawn.white, .rook.white, .knight.white, .bishop.white, .king.white, .queen.white {
+	background-position-y: 0;
+}
+.pawn.black, .rook.black, .knight.black, .bishop.black, .king.black, .queen.black {
+	background-position-y: 40px;
+}
+
+.bishop { background-position-x: 160px; }
+.knight { background-position-x: 120px; }
+.rook 	{ background-position-x: 80px; }
+.pawn 	{ background-position-x: 40px; }
+.queen 	{ background-position-x: 200px; }
+.king 	{ background-position-x: 0; }
